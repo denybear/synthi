@@ -4,7 +4,7 @@
  *
  */
 
-int led (int, int, int);
-int led_off (int);
-int bar_led (int, int, int);
-int bar_led_off (int);
+int led_filename (int, int, int);
+int filename_led_off (int);
+int led_filefunct (int, int, int);
+int filefunct_led_off (int);

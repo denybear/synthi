@@ -8,6 +8,8 @@
 #include "main.h"
 #include "config.h"
 #include "process.h"
+#include "utils.h"
+#include "led.h"
 
 
 /*************/
@@ -22,14 +24,34 @@ static void init_globals ( )
 	/* INIT SOME GLOBAL VARIABLES */
 	/******************************/
 
-	/* time signature is 0, ie. 4/4 by default */
-	timesign = _4_4;
-
 	/* allocate memory to read parameter table: client/server input-output automated connection */
 	/* let's make it 255 strings of 255 characters */
 	ports_to_connect = calloc (255, sizeof(char*));
 	for (i=0; i<255; i++) ports_to_connect[i] = calloc (255,sizeof(char));
 
+	/* clear structure that will get midi file and SF2 file name details, ie. filename structure */
+	for (i = 0; i<NB_NAMES; i++) {
+		memset (&filename[i], 0, sizeof (filename_t));
+	}
+	
+	/* clear structure that will get control details for midi file */
+	for (i = 0; i<NB_FCT; i++) {
+		memset (&filefunct[i], 0, sizeof (filefunct_t));
+	}
+	
+	// init clock sending
+	send_clock = NO_CLOCK;
+
+	// clear load/play flags
+	// is_load = TRUE allows to load default files (00_*) at startup
+	is_load = TRUE;
+	is_play = FALSE;
+	
+	// function flags
+	volume = 2;
+	is_volume = TRUE;	// force setting the volume at startup
+	bpm = 0	;			// bpm is only set when file is playing
+	initial_bpm = -1;
 }
 
 
@@ -49,6 +71,7 @@ void jack_shutdown ( void *arg )
 {
 	free (midi_input_port);
 	free (midi_output_port);
+	free (clock_output_port);
 	exit ( 1 );
 }
 
@@ -56,7 +79,7 @@ void jack_shutdown ( void *arg )
 
 int main ( int argc, char *argv[] )
 {
-	int i;
+	int i,j;
 	
 	// JACK variables
 	const char *client_name;
@@ -68,8 +91,12 @@ int main ( int argc, char *argv[] )
 	// Fluidsynth variables
 	fluid_settings_t* settings;
 	fluid_synth_t* synth;
-	fluid_player_t* player;
+	// note that fluid_player_t* player; is declared as global variable as we need it in jack's process () thread
 	fluid_audio_driver_t* adriver;
+	
+	// string containing : directory + filename
+	char name [1000];
+	
 
 	/* use basename of argv[0] */
 	client_name = strrchr ( argv[0], '/' );
@@ -134,7 +161,7 @@ int main ( int argc, char *argv[] )
 	*/
 	jack_on_shutdown ( client, jack_shutdown, 0 );
 
-	/* register midi-in port: this port will get the midi keys notification */
+	/* register midi-in port: this port will get the midi keys notification (from UI) */
 	midi_input_port = jack_port_register (client, "midi_input_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
 	if (midi_input_port == NULL ) {
 		fprintf ( stderr, "no more JACK MIDI ports available.\n" );
@@ -148,6 +175,13 @@ int main ( int argc, char *argv[] )
 		exit ( 1 );
 	}
 
+	/* register clock-out port: this port will send the clock notifications to exteral system (eg. boocli) */
+	clock_output_port = jack_port_register (client, "clock_output_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+	if (clock_output_port == NULL ) {
+		fprintf ( stderr, "no more JACK CLOCK ports available.\n" );
+		exit ( 1 );
+	}
+
 
 	/* Tell the JACK server that we are ready to roll.  Our
 	 * process() callback will start running now. */
@@ -158,23 +192,28 @@ int main ( int argc, char *argv[] )
 		exit ( 1 );
 	}
 
-	/* init fluidsynth */
+	// init global variables
+	init_globals();
+
 	// init fluidsynth
-	send_clock = NO_CLOCK;
 	settings = new_fluid_settings();
 	synth = new_fluid_synth(settings);
 	// jack as audio driver
 	// sample rate as the one defined in jack
 	fluid_settings_setstr(settings, "audio.driver", "jack");
 //	fluid_settings_setstr(settings, "synth.sample-rate", sample_rate);
-	player = new_fluid_player(synth);
+
 	// start the synthesizer thread
 	adriver = new_fluid_audio_driver(settings, synth);
-	// set player callback at tick
-	fluid_player_set_tick_callback (player, handle_tick, (void *) player);
 
-	/* init global variables */
-	init_globals();
+	// load default soundfont
+	if (fluid_is_soundfont(DEFAULT_SF2)) {
+		fluid_synth_sfload(synth, DEFAULT_SF2, 1);
+	}
+
+	// create new player, but don't load anything for now
+	player = new_fluid_player(synth);
+
 
 
 	/**************/
@@ -227,28 +266,102 @@ int main ( int argc, char *argv[] )
 	signal ( SIGINT, signal_handler );
 #endif
 
+	/* switch all leds off for all filenames */
+	for (i = 0; i<NB_NAMES; i++) {
+		/* set structure that contains status for each pad led to ON : this is to force all leds off */
+		memset (&led_status_filename[i][0], ON, LAST_ELT);
+		filename_led_off (i);
+
+		/* set structure that contains status for each pad led to OFF : this is useless: done by led() function, but you never know */
+		memset (&led_status_filename[i][0], OFF, LAST_ELT);
+	}
+
+	/* switch all leds off for all functions */
+	for (i = 0; i<NB_FCT; i++) {
+		/* set structure that contains status for each pad led to ON : this is to force all leds off */
+		memset (&led_status_filefunct[i][0], ON, LAST_ELT_FCT);
+		filefunct_led_off (i);
+
+		/* set structure that contains status for each pad led to OFF : this is useless: done by led() function, but you never know */
+		memset (&led_status_filefunct[i][0], OFF, LAST_ELT_FCT);
+	}
+
+	// at start, we use default volume (2); light on the volume pads to indicate this to the user
+	led_filefunct (0, VOLDOWN, PENDING);
+	led_filefunct (0, VOLUP, PENDING);
+
 
 	/* keep running until the transport stops */
 	while (1)
 	{
+		// check if user has loaded the LOAD button to load midi and SF2 file
+		if (is_load) {
 
-		// load soundfont and midi file
-		if (fluid_is_soundfont("/usr/share/sounds/sf2/FluidR3_GM.sf2")) {
-			fluid_synth_sfload(synth, "/usr/share/sounds/sf2/FluidR3_GM.sf2", 1);
+
+/* for debug purpose only
+FILE *f;
+if (name_to_byte (&filename [0]) == 01) {
+	f = fopen ("trace.txt", "wt");
+	for (i=0; i<trace_index; i++) {
+		fputs(trace[i], f);
+	}
+	fclose (f);
+}
+*/
+			
+			// make sure no file is playing to allow load of new file !
+			if ((fluid_player_get_status (player)== FLUID_PLAYER_DONE) || (fluid_player_get_status (player)== FLUID_PLAYER_READY)) {
+			
+				// get name of requested midi file from directory
+				if (get_full_filename (name, name_to_byte (&filename [0]), "./songs/") == TRUE) {
+					// if a file exists
+					if (fluid_is_midifile(name)) {
+
+						// delete current fluid player
+						delete_fluid_player (player);
+						// create new player
+						player = new_fluid_player(synth);
+						// set player callback at tick
+						fluid_player_set_tick_callback (player, handle_tick, (void *) player);
+
+						// load midi file
+						fluid_player_add(player, name);
+						// set endless looping of current file
+						fluid_player_set_loop (player, -1);
+
+						// initial bpm of the file is set to -1 to force reading of initial bpm if bpm pads are pressed
+						initial_bpm = -1; 
+						// we are at initial BPM; set the 2 BPM pads accordingly
+						led_filefunct (0, BPMDOWN, PENDING);
+						led_filefunct (0, BPMUP, PENDING);
+
+					}
+				}
+
+				// get name of requested SF2 file from directory
+				if (get_full_filename (name, name_to_byte (&filename [1]), "./soundfonts/") == TRUE) {
+					// if a file exists
+					if (fluid_is_soundfont(name)) {
+						fluid_synth_sfload(synth, name, 1);
+					}
+				}
+			}
+			
+			// load is done; set to FALSE
+			is_load = FALSE;
+			// load led OFF
+			led_filename (0, LOAD, is_load);
 		}
-		if (fluid_is_midifile("./ff7.mid")) {
-			fluid_player_add(player, "./ff7.mid");
-			printf ("file loaded\n");
+
+		// check if user has pressed volume pads; this part is also executed at startup
+		if (is_volume) {
+			// set gain: 0 < gain < 1.0 (default = 0.2)
+			fluid_settings_setnum (settings, "synth.gain", (float) volume/10.0f);
+			// volume setting is done; set to FALSE
+			is_volume = FALSE;
+			// no need to light on/off the pads, this is done in the process thread
 		}
 
-		// set endless looping of current file
-		fluid_player_set_loop (player, -1);
-
-		// play the midi files, if any
-		fluid_player_play(player);
-
-		// wait for playback termination
-		fluid_player_join(player);
 
 #ifdef WIN32
 		Sleep ( 1000 );

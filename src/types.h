@@ -11,6 +11,7 @@
 #include <string.h>
 #include <math.h>
 #include <signal.h>
+#include <dirent.h>
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -20,70 +21,70 @@
 #include <fluidsynth.h>
 
 
+/* default soundfont file */
+#define DEFAULT_SF2 "./soundfonts/00_FluidR3_GM.sf2"
 
 /* constants */
-#define NB_TRACKS	6	// number of tracks for the looper
-#define NB_BAR_ROWS 2	// number of bar rows to select tehe number of bars to record
 #define MIDI_CLOCK 0xF8
 #define MIDI_RESERVED 0xF9
 #define MIDI_PLAY 0xFA
 #define MIDI_STOP 0xFC
 #define MIDI_CLOCK_RATE 96 // 24*4 ticks for full note, 24 ticks per quarter note
 
-#define FIRST_ELT 0		// used for declarations and loops
-#define TIMESIGN 0
-#define	LOAD 1
-#define	SAVE 2
-#define PLAY 3
-#define RECORD 4
-#define MUTE 5
-#define SOLO 6
-#define VOLDOWN 7
-#define VOLUP 8
-#define MODE 9
-#define DELETE 10
-#define LAST_ELT 11		// used for declarations and loops
+#define NB_NAMES 2		// 2 file names: 1 midi file name, 1 SF2 file name
+#define FIRST_ELT 0		// used for declarations and loops for filename struct
+#define	B0	0
+#define	B1	1
+#define	B2	2
+#define	B3	3
+#define	B4	4
+#define	B5	5
+#define	B6	6
+#define	B7	7
+#define PLAY	8		// play file
+#define LOAD	9		// load files (midi and SF2) to player
+#define LAST_ELT 10		// used for declarations and loops
 
-#define LAST_BAR_ELT 8		// used for declarations and loops
-
-
-/* max number of samples of each track buffer (L,R) */
-#define NB_SAMPLES	13230000	// 13230000 samples at 44100 Hz means 300 seconds of music, ie. 5 min loops
-
-/* time signature values */
-#define FIRST_TIMESIGN 0
-#define _4_4 0
-#define _2_2 1
-#define	_2_4 2
-#define	_3_4 3
-#define	_6_8 4
-#define	_9_8 5
-#define	_12_8 6
-#define	_5_4 7
-#define LAST_TIMESIGN 7
-// let's not support 3_8 nor 6_4 for now at it messes with our BBT calculations algorithm
+#define NB_FCT 1		// 1 line of functions for midi file: vol -/+, BPM -/+
+#define FIRST_ELT_FCT 0		// used for declarations and loops for function struct
+#define	VOLDOWN	0
+#define	VOLUP	1
+#define	BPMDOWN	2
+#define	BPMUP	3
+#define LAST_ELT_FCT 4		// used for declarations and loops
 
 /* define status, etc */
 #define TRUE 1
 #define FALSE 0
 
+#define NAMES 0
+#define FCT 1
+
+#define CLOCK_PLAY_READY 3
 #define	CLOCK_PLAY 2
 #define CLOCK 1
 #define NO_CLOCK 0
 
-
-#define TRACK 0
-#define BAR 1
-
-#define ON_BBT 2
-
 #define FIRST_STATE 0		// used for declarations and loops
 #define OFF 0
 #define ON 1
-#define PENDING_ON 2
-#define PENDING_OFF 3
-#define LAST_STATE 4		// used for declarations and loops
+#define PENDING	2
+#define LAST_STATE 3		// used for declarations and loops
 
 /* list management (used for led mgmt) */
 #define LIST_ELT 100
+
+
+/* types */
+typedef struct {						// structure for each of the 2 names
+	unsigned char ctrl [LAST_ELT] [2];	//controls on the midi control surface
+	unsigned char led [LAST_ELT] [LAST_STATE] [3];		// led lightings on the midi control surface (off, pending, on...)
+	unsigned char status [LAST_ELT];	// Status byte for each function
+} filename_t;
+
+typedef struct {						// structure for each of the 2 names
+	unsigned char ctrl [LAST_ELT_FCT] [2];	//controls on the midi control surface
+	unsigned char led [LAST_ELT_FCT] [LAST_STATE] [3];		// led lightings on the midi control surface (off, pending, on...)
+	unsigned char status [LAST_ELT_FCT];	// Status byte for each function
+} filefunct_t;
 

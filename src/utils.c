@@ -9,19 +9,66 @@
 #include "globals.h"
 #include "config.h"
 #include "process.h"
-#include "led.h"
-#include "time.h"
 #include "utils.h"
-#include "disk.h"
+#include "led.h"
+
+// convert filename from structure to a byte 
+unsigned char name_to_byte (filename_t *name) {
+
+	return ((name->status[B7] << 7) + (name->status[B6] << 6) + (name->status[B5] << 5) + (name->status[B4] << 4) + (name->status[B3] << 3) + (name->status[B2] << 2) + (name->status[B1] << 1) + (name->status[B0]));
+	
+}
+
+// in the given directory, look for filename starting with number, and return corresponding full name
+// returns FALSE if no file found, TRUE if file is found 
+int get_full_filename (char * name, unsigned char number, char * directory) {
+
+	DIR *dir;
+	struct dirent *ent;
+	char st1[3], st2[3];
+
+	// convert number into string (in lowercases and uppercases)
+	sprintf (st1, "%02x", number);
+	sprintf (st2, "%02X", number);
+	if ((dir = opendir (directory)) != NULL) {
+		/* print all the files and directories within directory */
+		while ((ent = readdir (dir)) != NULL) {
+			// check if file starts with number; allow mixing lower and upper cases
+			if (((st1[0] == ent->d_name [0]) || (st2[0] == ent->d_name [0])) && ((st1[1] == ent->d_name [1]) || (st2[1] == ent->d_name [1]))) {
+				// copy full file name (including directory) into result variable
+				strcpy (name, directory);
+				strcat (name, ent->d_name);
+				closedir (dir);
+				return TRUE;
+			}
+		}
+	// could not find a file starting with number
+	closedir (dir);
+	return FALSE;
+	}
+
+	else {
+		// could not open directory
+		fprintf ( stderr, "Directory not found.\n" );
+		return FALSE;
+	}
+}
+
+// determines if 2 midi messages (ie. events) are the same; returns TRUE if yes
+int same_event (unsigned char * evt1, unsigned char * evt2) {
+
+	if ((evt1[0]==evt2[0]) && (evt1[1]==evt2[1])) return TRUE;
+	return FALSE;
+}
 
 
 // add led request to the list of requests to be processed
-int push_to_list (int dest, int tracknum, int type, int on_off) {
+int push_to_list (int dest, int row, int col, int on_off) {
 
 	// add to list
 	list_buffer [list_index][0] = (unsigned char) dest;
-	list_buffer [list_index][1] = (unsigned char) tracknum;
-	list_buffer [list_index][2] = (unsigned char) type;
+	list_buffer [list_index][1] = (unsigned char) row;
+	list_buffer [list_index][2] = (unsigned char) col;
 	list_buffer [list_index][3] = (unsigned char) on_off;
 
 	// increment index and check boundaries
@@ -36,15 +83,15 @@ int push_to_list (int dest, int tracknum, int type, int on_off) {
 
 // pull out led request from the list of requests to be processed (FIFO style)
 // returns 0 if pull request has failed (nomore request to be pulled out)
-int pull_from_list (int *dest, int *tracknum, int *type, int *on_off) {
+int pull_from_list (int *dest, int *row, int *col, int *on_off) {
 
 	// check if we have requests to be pulled; if not, leave
 	if (list_index == 0) return 0;
 
 	// remove first element from list
 	*dest = list_buffer [0][0];
-	*tracknum = list_buffer [0][1];
-	*type = list_buffer [0][2];
+	*row = list_buffer [0][1];
+	*col = list_buffer [0][2];
 	*on_off = list_buffer [0][3];
 
 	// decrement index
@@ -54,54 +101,6 @@ int pull_from_list (int *dest, int *tracknum, int *type, int *on_off) {
 	memmove (&list_buffer[0][0], &list_buffer[1][0], list_index * 4);
 
 	return 1;
-}
-
-
-// determines if 2 midi messages (ie. events) are the same; returns 1 if yes
-int same_event (unsigned char * evt1, unsigned char * evt2) {
-
-	if ((evt1[0]==evt2[0]) && (evt1[1]==evt2[1])) return 1;
-	return 0;
-}
-
-
-// get a status, process state machine with 4 states and returns next status
-unsigned char next_status_4 (unsigned char status) {
-
-	switch (status)	{
-		case OFF:
-			return PENDING_ON;
-		case ON:
-			return PENDING_OFF;
-		default:
-			return status;
-	}
-}
-
-
-// get a status, process state machine with 2 states and returns next status
-unsigned char next_status_2 (unsigned char status) {
-
-	if (status == OFF) return ON;
-	else return OFF;
-}
-
-
-// determines if a pending action (play, record...) shall be done on a track, that is mode = OFF and new bar (returns ON_BBT), or mode == ON (returns ON)
-int is_pending_action (int i) {
-
-	// this shall be done only if MODE == OFF AND we have a new bar (that is: is_BBT = 1), or in any case if MODE == ON
-	if ((track[i].status[MODE] == OFF) && (is_BBT==ON)) return ON_BBT;
-	if (track[i].status[MODE] == ON) return ON;
-	return OFF;
-}
-
-
-// reset all the status bytes of a track
-int reset_status (track_t *t) {
-
-	// set status memory to 0
-	memset (t->status, OFF, LAST_ELT);
 }
 
 

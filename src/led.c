@@ -8,59 +8,66 @@
 #include "globals.h"
 #include "config.h"
 #include "process.h"
-#include "led.h"
-#include "time.h"
 #include "utils.h"
-#include "disk.h"
+#include "led.h"
 
-// function called to turn pad led on/off
-int led (int tracknum, int type, int on_off) {
 
-	// check if the light is already ON, OFF, PENDING_ON according to what we want
-	// this will allow to determine wether we take the request into account or not
-	if (led_status [tracknum][type] != on_off) {
+// function called to turn pad led on/off for a given row/col for filename
+int led_filename (int row, int col, int on_off) {
+
+	// check if the light is already ON, OFF, PENDING according to what we want
+	// this will allow to determine whether we take the request into account or not
+	if (led_status_filename [row][col] != on_off) {
+
 		// push to list of led requests to be processed
-		push_to_list (TRACK,tracknum, type, on_off);
+		push_to_list (NAMES, row, col, on_off);
 		// update led status so it matches with request
-		led_status [tracknum][type] = (unsigned char) on_off;
+		led_status_filename [row][col] = (unsigned char) on_off;
 
 	}
 }
 
 
-// function called to turn pad led off for a track
-int led_off (int tracknum) {
+// function called to turn function rows pad led on/off
+int led_filefunct (int row, int col, int on_off) {
 
-	led (tracknum, PLAY, OFF);
-	led (tracknum, RECORD, OFF);
-	led (tracknum, MUTE, OFF);
-	led (tracknum, SOLO, OFF);
-	led (tracknum, VOLUP, OFF);
-	led (tracknum, VOLDOWN, OFF);
-	led (tracknum, MODE, OFF);
-	led (tracknum, DELETE, OFF);
-}
-
-
-// function called to turn bar rows pad led on/off
-int bar_led (int barrownum, int num, int on_off) {
-
-	// check if the light is already ON, OFF, PENDING_ON according to what we want
+	// check if the light is already ON, OFF, PENDING according to what we want
 	// this will allow to determine wether we take the request into account or not
-	if (bar_led_status [barrownum][num] != on_off) {
+	if (led_status_filefunct [row][col] != on_off) {
+		
 		// push to list of led requests to be processed
-		push_to_list (BAR, barrownum, num, on_off);
+		push_to_list (FCT, row, col, on_off);
 		// update led status so it matches with request
-		bar_led_status [barrownum][num] = (unsigned char) on_off;
+		led_status_filefunct [row][col] = (unsigned char) on_off;
 
 	}
 }
 
 
-// function called to turn pad led off for a bar row
-int bar_led_off (int barrownum) {
+// function called to turn pad led off for a filename
+int filename_led_off (int row) {
+
+	led_filename (row, PLAY, OFF);
+	led_filename (row, LOAD, OFF);
+	led_filename (row, B0, OFF);
+	led_filename (row, B1, OFF);
+	led_filename (row, B2, OFF);
+	led_filename (row, B3, OFF);
+	led_filename (row, B4, OFF);
+	led_filename (row, B5, OFF);
+	led_filename (row, B6, OFF);
+	led_filename (row, B7, OFF);
+}
+
+
+// function called to turn pad led off for a set of functions
+int filefunct_led_off (int row) {
 
 int i;
 
-	for (i=0; i<LAST_BAR_ELT; i++) bar_led (barrownum, i, OFF);
+	led_filefunct (row, VOLDOWN, OFF);
+	led_filefunct (row, VOLUP, OFF);
+	led_filefunct (row, BPMDOWN, OFF);
+	led_filefunct (row, BPMUP, OFF);
 }
+
