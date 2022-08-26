@@ -27,19 +27,19 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=13
-FILE_NAME_0=8911;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmain.c;0;4
-FILE_NAME_1=1432;Make;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmakefile;0;4
-FILE_NAME_2=1704;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fglobals.h;0;4
+current_page=10
+FILE_NAME_0=9648;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmain.c;0;4
+FILE_NAME_1=903;Make;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmakefile;0;4
+FILE_NAME_2=1616;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fglobals.h;0;4
 FILE_NAME_3=1319;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fconfig.c;0;4
 FILE_NAME_4=239;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Ftypes.h;0;4
-FILE_NAME_5=1532;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmain.h;0;4
+FILE_NAME_5=1551;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmain.h;0;4
 FILE_NAME_6=0;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fconfig.h;0;4
-FILE_NAME_7=10814;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fprocess.c;0;4
+FILE_NAME_7=9337;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fprocess.c;0;4
 FILE_NAME_8=228;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fprocess.h;0;4
 FILE_NAME_9=68;Sh;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsynthi.sh;0;4
-FILE_NAME_10=1228;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Futils.c;0;4
-FILE_NAME_11=286;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Futils.h;0;4
+FILE_NAME_10=2259;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Futils.c;0;4
+FILE_NAME_11=218;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Futils.h;0;4
 FILE_NAME_12=1915;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fled.c;0;4
 FILE_NAME_13=214;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fled.h;0;4
 
