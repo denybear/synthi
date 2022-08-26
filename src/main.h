@@ -50,6 +50,9 @@ int initial_bpm;
 int volume;
 int is_volume;
 
+/* PPQ */
+int ppq;
+
 /* for debug purpose only
 char trace[50000][80];
 int trace_index = 0;

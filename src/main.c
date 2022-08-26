@@ -316,7 +316,7 @@ if (name_to_byte (&filename [0]) == 01) {
 				if (get_full_filename (name, name_to_byte (&filename [0]), "./songs/") == TRUE) {
 					// if a file exists
 					if (fluid_is_midifile(name)) {
-
+						
 						// delete current fluid player
 						delete_fluid_player (player);
 						// create new player
@@ -324,6 +324,8 @@ if (name_to_byte (&filename [0]) == 01) {
 						// set player callback at tick
 						fluid_player_set_tick_callback (player, handle_tick, (void *) player);
 
+						// get new ppq value
+						ppq = get_division (name); 
 						// load midi file
 						fluid_player_add(player, name);
 						// set endless looping of current file

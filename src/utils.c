@@ -54,6 +54,30 @@ int get_full_filename (char * name, unsigned char number, char * directory) {
 	}
 }
 
+// read PPQ from midi file 
+int get_division (char * name) {
+
+	FILE *f;
+    char mthd[14];
+    int division;
+    int retour;
+
+	if ((f = fopen (name, "r")) == NULL) printf ("could not open file\n");
+
+	// read file header, in which there is division value
+    if (fread (mthd, sizeof(mthd), 1, f) != 1)
+    {
+		// set division to standard midi clock in case of file read error
+        division = 24;
+    }
+
+	// else get division (=ppq) value from file 
+	else division = ((unsigned)mthd[12] << 8) | ((unsigned)mthd[13] & 0xff);
+
+	fclose (f);
+	return division;	
+}
+
 // determines if 2 midi messages (ie. events) are the same; returns TRUE if yes
 int same_event (unsigned char * evt1, unsigned char * evt2) {
 

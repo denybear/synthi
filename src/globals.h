@@ -46,6 +46,9 @@ extern int initial_bpm;
 extern int volume;
 extern int is_volume;
 
+/* PPQ */
+extern int ppq;
+
 /* for debug purpose only
 extern char trace[50000][80];
 extern int trace_index;

@@ -300,7 +300,7 @@ int midi_in_process (jack_midi_event_t *event, jack_nframes_t nframes) {
 int handle_tick(void *data, int tick) {
 
 	fluid_player_t* player;
-	int ppq;
+//	int ppq;
 	int index_pulse;
 	int i;
 	float ppq_per_midi_clock;
@@ -310,7 +310,8 @@ int handle_tick(void *data, int tick) {
 	// define data as being a pointer to player
 	player = (fluid_player_t*) data;
 	// pulse per quarter note
-	ppq = fluid_player_get_division (player);
+// This call does not exist in FLUIDSYTH yet; replaced with custom function
+//	ppq = fluid_player_get_division (player);
 	// number of pulse per midi_clock event
 	ppq_per_midi_clock = ppq / 24.0;
 	// index of pulse within quarter note

@@ -6,6 +6,7 @@
 
 unsigned char name_to_byte (filename_t *);
 int get_full_filename (char *, unsigned char, char *);
+int get_division (char *);
 int same_event (unsigned char *, unsigned char *);
 int push_to_list (int, int , int , int);
 int pull_from_list (int *, int *, int *, int *);
