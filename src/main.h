@@ -43,6 +43,7 @@ unsigned char led_status_filefunct [NB_FCT][LAST_ELT_FCT]; 	// this table will c
 /* load (midi and SF2 files) & play (midi file) globals */
 int is_load;
 int is_play;
+int sf2_id;		// id of sf2 file currently loaded
 
 /* volume and BPM */
 int bpm;
