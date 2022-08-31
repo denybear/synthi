@@ -27,13 +27,13 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=10
-FILE_NAME_0=9648;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmain.c;0;4
-FILE_NAME_1=903;Make;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmakefile;0;4
-FILE_NAME_2=1616;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fglobals.h;0;4
+current_page=0
+FILE_NAME_0=10559;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmain.c;0;4
+FILE_NAME_1=1641;Make;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmakefile;0;4
+FILE_NAME_2=1502;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fglobals.h;0;4
 FILE_NAME_3=1319;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fconfig.c;0;4
 FILE_NAME_4=239;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Ftypes.h;0;4
-FILE_NAME_5=1551;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmain.h;0;4
+FILE_NAME_5=1456;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fmain.h;0;4
 FILE_NAME_6=0;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fconfig.h;0;4
 FILE_NAME_7=9337;C;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fprocess.c;0;4
 FILE_NAME_8=228;C++;0;EUTF-8;1;1;0;%2Fhome%2Fpi%2Fprojets%2Fsynthi%2Fsrc%2Fprocess.h;0;4
