@@ -347,7 +347,7 @@ if (name_to_byte (&filename [0]) == 01) {
 					if (fluid_is_soundfont(name)) {
 						// unload previously loaded soundfont
 						// this is to prevent memory issues (lack of memory)
-//						fluid_synth_sfunload (synth, sf2_id, TRUE);
+						fluid_synth_sfunload (synth, sf2_id, TRUE);
 						// load new sf2 file
 						sf2_id = fluid_synth_sfload(synth, name, TRUE);
 					}
