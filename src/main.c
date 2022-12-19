@@ -53,6 +53,8 @@ static void init_globals ( )
 	is_volume = TRUE;	// force setting the volume at startup
 	bpm = 0	;			// bpm is only set when file is playing
 	initial_bpm = -1;
+	now = 0;			// used for automated tempo adjustment (at press of switch)
+	previous = 0;
 }
 
 
@@ -333,7 +335,10 @@ if (name_to_byte (&filename [0]) == 01) {
 						fluid_player_set_loop (player, -1);
 
 						// initial bpm of the file is set to -1 to force reading of initial bpm if bpm pads are pressed
-						initial_bpm = -1; 
+						initial_bpm = -1;
+						now = 0;			// used for automated tempo adjustment (at press of switch)
+						previous = 0;
+
 						// we are at initial BPM; set the 2 BPM pads accordingly
 						led_filefunct (0, BPMDOWN, PENDING);
 						led_filefunct (0, BPMUP, PENDING);

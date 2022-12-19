@@ -512,6 +512,13 @@ int read_config (char *name)
 			filefunct[i].ctrl[BPMUP][0] = config_setting_get_int_elem (buffer, 0);
 			filefunct[i].ctrl[BPMUP][1] = config_setting_get_int_elem (buffer, 1);
 
+			buffer = config_setting_get_member (book, "beat");
+			/* check buffer is not empty, and has 2 elements */
+			if (!buffer) continue;
+			if (config_setting_length(buffer)!=2) continue;
+			filefunct[i].ctrl[BEAT][0] = config_setting_get_int_elem (buffer, 0);
+			filefunct[i].ctrl[BEAT][1] = config_setting_get_int_elem (buffer, 1);
+
 		}
 	}
 
@@ -562,6 +569,14 @@ int read_config (char *name)
 			filefunct[i].led[BPMUP][ON][0] = config_setting_get_int_elem (buffer, 0);
 			filefunct[i].led[BPMUP][ON][1] = config_setting_get_int_elem (buffer, 1);
 			filefunct[i].led[BPMUP][ON][2] = config_setting_get_int_elem (buffer, 2);
+
+			buffer = config_setting_get_member (book, "beat");
+			/* check buffer is not empty, and has 3 elements */
+			if (!buffer) continue;
+			if (config_setting_length(buffer)!=3) continue;
+			filefunct[i].led[BEAT][ON][0] = config_setting_get_int_elem (buffer, 0);
+			filefunct[i].led[BEAT][ON][1] = config_setting_get_int_elem (buffer, 1);
+			filefunct[i].led[BEAT][ON][2] = config_setting_get_int_elem (buffer, 2);
 		}
 	}
 
@@ -613,6 +628,14 @@ int read_config (char *name)
 			filefunct[i].led[BPMUP][PENDING][0] = config_setting_get_int_elem (buffer, 0);
 			filefunct[i].led[BPMUP][PENDING][1] = config_setting_get_int_elem (buffer, 1);
 			filefunct[i].led[BPMUP][PENDING][2] = config_setting_get_int_elem (buffer, 2);
+
+			buffer = config_setting_get_member (book, "beat");
+			/* check buffer is not empty, and has 3 elements */
+			if (!buffer) continue;
+			if (config_setting_length(buffer)!=3) continue;
+			filefunct[i].led[BEAT][PENDING][0] = config_setting_get_int_elem (buffer, 0);
+			filefunct[i].led[BEAT][PENDING][1] = config_setting_get_int_elem (buffer, 1);
+			filefunct[i].led[BEAT][PENDING][2] = config_setting_get_int_elem (buffer, 2);
 		}
 	}
 
@@ -664,6 +687,14 @@ int read_config (char *name)
 			filefunct[i].led[BPMUP][OFF][0] = config_setting_get_int_elem (buffer, 0);
 			filefunct[i].led[BPMUP][OFF][1] = config_setting_get_int_elem (buffer, 1);
 			filefunct[i].led[BPMUP][OFF][2] = config_setting_get_int_elem (buffer, 2);
+
+			buffer = config_setting_get_member (book, "beat");
+			/* check buffer is not empty, and has 3 elements */
+			if (!buffer) continue;
+			if (config_setting_length(buffer)!=3) continue;
+			filefunct[i].led[BEAT][OFF][0] = config_setting_get_int_elem (buffer, 0);
+			filefunct[i].led[BEAT][OFF][1] = config_setting_get_int_elem (buffer, 1);
+			filefunct[i].led[BEAT][OFF][2] = config_setting_get_int_elem (buffer, 2);
 		}
 	}
 

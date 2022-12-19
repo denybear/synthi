@@ -12,6 +12,7 @@
 #include <math.h>
 #include <signal.h>
 #include <dirent.h>
+#include <time.h>
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -51,7 +52,8 @@
 #define	VOLUP	1
 #define	BPMDOWN	2
 #define	BPMUP	3
-#define LAST_ELT_FCT 4		// used for declarations and loops
+#define BEAT	4
+#define LAST_ELT_FCT 5		// used for declarations and loops
 
 /* define status, etc */
 #define TRUE 1

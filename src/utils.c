@@ -128,3 +128,17 @@ int pull_from_list (int *dest, int *row, int *col, int *on_off) {
 }
 
 
+
+/// Convert seconds to microseconds
+#define SEC_TO_US(sec) ((sec)*1000000)
+/// Convert nanoseconds to microseconds
+#define NS_TO_US(ns)    ((ns)/1000)
+
+/// Get a time stamp in microseconds.
+uint64_t micros() {
+	
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    uint64_t us = SEC_TO_US((uint64_t)ts.tv_sec) + NS_TO_US((uint64_t)ts.tv_nsec);
+    return us;
+}

@@ -54,6 +54,10 @@ int is_volume;
 /* PPQ */
 int ppq;
 
+/* beat */
+uint64_t now;       // time now
+uint64_t previous;  // time when "beat" key was last pressed
+
 /* for debug purpose only
 char trace[50000][80];
 int trace_index = 0;

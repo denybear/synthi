@@ -50,6 +50,10 @@ extern int is_volume;
 /* PPQ */
 extern int ppq;
 
+/* beat */
+extern uint64_t now;       // time now
+extern uint64_t previous;  // time when "beat" key was last pressed
+
 /* for debug purpose only
 extern char trace[50000][80];
 extern int trace_index;
