@@ -33,6 +33,11 @@ int process ( jack_nframes_t nframes, void *arg )
 	int dest, row, col, on_off;				// variables used to manage lighting of the pad leds
 
 
+	/*****************************************************************************/
+	/* At very first, process external beat switch by checking if pressed or not */
+	/*****************************************************************************/
+	if (gpio_process () == TRUE) beat_process ();
+
 
 	/**************************************/
 	/* First, process MIDI in (UI) events */
@@ -301,14 +306,34 @@ int midi_in_process (jack_midi_event_t *event, jack_nframes_t nframes) {
 // process managing external switch and LED
 int gpio_process () {
 
+	// get current time
+	now = micros ();
+
 	// test if GPIO is enabled
 	if (gpio_state == ON) {
-		if (gpioRead (SWITCH_GPIO)) {
-			// anti_bounce mechanism
-			// LED mechanism
-			beat_process ();
-		};
+
+		// test switch value; if switch is pressed then value is LOW
+//		if (gpioRead (SWITCH_GPIO) == OFF) {
+		if (gpio_read (gpio_deamon, SWITCH_GPIO) == OFF) {
+			// anti_bounce mechanism: make sure the switch is not "bouncing", causing repeated ON-OFF in a short period
+			// no bounce if previous is 0
+			if ((previous == 0) || ((now-previous) > ANTIBOUNCE_US))
+			{
+				previous_led = now;			// set time when led has been put on
+//				gpioWrite (LED_GPIO, ON);	// turn LED ON
+				gpio_write (gpio_deamon, LED_GPIO, ON);	// turn LED ON
+				return TRUE;				// switch pressed, no bounce : exit function with press	OK
+			}
+		}
+
+		// check when to turn LED off : it is turned off when led is on for more than TIMEON_US
+	    if ((now - previous_led) > TIMEON_US) {
+//			gpioWrite (LED_GPIO, OFF);	// turn LED OFF
+			gpio_write (gpio_deamon, LED_GPIO, OFF);	// turn LED OFF
+		}
 	}
+
+	return FALSE;		// return false (no switch press) when: 1- no GPIO enabled; 2- switch pressed but this is a bounce
 }
 
 

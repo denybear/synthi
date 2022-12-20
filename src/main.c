@@ -15,7 +15,8 @@
 /*************/
 /* functions */
 /*************/
-static int init_gpio ()
+// do not use as you need to have root priviledges for it to work
+static int init_gpio_do_not_use ()
 {
 	if (gpioInitialise() == PI_INIT_FAILED) {
     	fprintf(stderr, "pigpio initialisation failed\n");
@@ -24,11 +25,45 @@ static int init_gpio ()
 
 	/* Set GPIO modes */
 	gpioSetMode(LED_GPIO, PI_OUTPUT);
+	gpioWrite (LED_GPIO, OFF);					// at start, LED is off
+
 	gpioSetMode(SWITCH_GPIO, PI_INPUT);
 	gpioSetPullUpDown(SWITCH_GPIO, PI_PUD_UP);	// Sets a pull-up
 	// benefits of pull-up is that way, no voltage are input in the pins; pins are only put to GND
 	return ON;
 }
+
+// do not use as you need to have root priviledges for it to work
+static int kill_gpio_do_not_use ()
+{
+	gpioTerminate ();
+}
+
+static int init_gpio ()
+{
+	gpio_deamon = pigpio_start(0, 0);
+
+	if (gpio_deamon < 0) {
+    	fprintf(stderr, "pigpio initialisation failed\n");
+    	return OFF;
+	}
+
+	/* Set GPIO modes */
+	set_mode (gpio_deamon, LED_GPIO, PI_OUTPUT);
+	gpio_write (gpio_deamon, LED_GPIO, OFF);					// at start, LED is off
+
+	set_mode (gpio_deamon, SWITCH_GPIO, PI_INPUT);
+	set_pull_up_down (gpio_deamon, SWITCH_GPIO, PI_PUD_UP);	// Sets a pull-up
+	// benefits of pull-up is that way, no voltage are input in the pins; pins are only put to GND
+	return ON;
+}
+
+
+static int kill_gpio ()
+{
+	pigpio_stop (gpio_deamon);
+}
+
 
 static void init_globals ( )
 {
@@ -69,12 +104,14 @@ static void init_globals ( )
 	initial_bpm = -1;
 	now = 0;			// used for automated tempo adjustment (at press of switch)
 	previous = 0;
+	previous_led = 0;	// time when LED was turned ON
 }
 
 
 static void signal_handler ( int sig )
 {
 	jack_client_close ( client );
+	kill_gpio ();
 	fprintf ( stderr, "signal received, exiting ...\n" );
 	exit ( 0 );
 }
@@ -89,6 +126,7 @@ void jack_shutdown ( void *arg )
 	free (midi_input_port);
 	free (midi_output_port);
 	free (clock_output_port);
+	kill_gpio ();
 	exit ( 1 );
 }
 
@@ -113,7 +151,7 @@ int main ( int argc, char *argv[] )
 	
 	// string containing : directory + filename
 	char name [1000];
-	
+
 
 	/* use basename of argv[0] */
 	client_name = strrchr ( argv[0], '/' );
@@ -149,6 +187,7 @@ int main ( int argc, char *argv[] )
 		{
 			fprintf ( stderr, "Unable to connect to JACK server.\n" );
 		}
+		kill_gpio ();
 		exit ( 1 );
 	}
 	if ( status & JackServerStarted )
@@ -182,6 +221,7 @@ int main ( int argc, char *argv[] )
 	midi_input_port = jack_port_register (client, "midi_input_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
 	if (midi_input_port == NULL ) {
 		fprintf ( stderr, "no more JACK MIDI ports available.\n" );
+		kill_gpio ();
 		exit ( 1 );
 	}
 
@@ -189,6 +229,7 @@ int main ( int argc, char *argv[] )
 	midi_output_port = jack_port_register (client, "midi_output_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
 	if (midi_output_port == NULL ) {
 		fprintf ( stderr, "no more JACK MIDI ports available.\n" );
+		kill_gpio ();
 		exit ( 1 );
 	}
 
@@ -196,6 +237,7 @@ int main ( int argc, char *argv[] )
 	clock_output_port = jack_port_register (client, "clock_output_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
 	if (clock_output_port == NULL ) {
 		fprintf ( stderr, "no more JACK CLOCK ports available.\n" );
+		kill_gpio ();
 		exit ( 1 );
 	}
 
@@ -206,6 +248,7 @@ int main ( int argc, char *argv[] )
 	if ( jack_activate ( client ) )
 	{
 		fprintf ( stderr, "cannot activate client.\n" );
+		kill_gpio ();
 		exit ( 1 );
 	}
 
@@ -243,6 +286,7 @@ int main ( int argc, char *argv[] )
 	/* read config file to get all the parameters */
 	if (read_config (config_name)==EXIT_FAILURE) {
 		fprintf ( stderr, "error in reading config file.\n" );
+		kill_gpio ();
 		exit ( 1 );
 	}
 
@@ -262,6 +306,7 @@ int main ( int argc, char *argv[] )
 		fprintf (stderr, "server: %s , client: %s\n", ports_to_connect[i], ports_to_connect[i+1]);
 		if ( jack_connect ( client, ports_to_connect [i], ports_to_connect [i+1]) ) {
 			fprintf ( stderr, "cannot connect ports (between client and server).\n" );
+			kill_gpio ();
 //			exit (1);
 		}
 		/* increment index of 2 position to move to next (server, client) port couple */
@@ -398,6 +443,9 @@ if (name_to_byte (&filename [0]) == 01) {
 		sleep ( 1 );
 #endif
 	}
+
+	// terminate gpio support
+	kill_gpio ();
 
 	// JACK client close
 	jack_client_close ( client );

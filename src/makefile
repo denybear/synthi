@@ -10,7 +10,7 @@ DEPS = jack/jack.h jack/midiport.h libconfig.h fluidsynth.h types.h main.h confi
 
 #Any special libraries you are using in your project (e.g. -lbcm2835 -lrt `pkg-config --libs gtk+-3.0` ), or leave blank
 #LIBS = -L/usr/lib/i386-linux-gnu -ljack
-LIBS = -ljack -lm -lconfig -L/usr/local/lib64 -lfluidsynth
+LIBS = -ljack -lm -lconfig -L/usr/local/lib64 -lfluidsynth -lpigpio -lpigpiod_if2
 
 
 #Set any compiler flags you want to use (e.g. -I/usr/include/somefolder `pkg-config --cflags gtk+-3.0` ), or leave blank

@@ -14,6 +14,7 @@
 #include <dirent.h>
 #include <time.h>
 #include <pigpio.h>
+#include <pigpiod_if2.h>		// stupid pigpio cannot be run without beig root...
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -25,6 +26,8 @@
 /* default GPIO pins */
 #define LED_GPIO	21
 #define SWITCH_GPIO	20
+#define ANTIBOUNCE_US   200000      // 0.20 sec = 200000 usec : used for switch anti-bouncing check
+#define TIMEON_US       200000      // 0.20 sec : used as on/off time for leds 
 
 /* default soundfont file */
 #define DEFAULT_SF2 "./soundfonts/00_FluidR3_GM.sf2"

@@ -9,6 +9,11 @@
 /* global variables */
 /********************/
 
+// define if gpio is running for external beat switch and LED
+int gpio_state;     // OFF = gpio OFF: ON = GPIO ON
+int gpio_deamon;    // deamon id for pigpiod
+uint64_t previous_led;  // time when switch was set as on
+
 // define midi ports
 jack_port_t *midi_input_port;
 jack_port_t *midi_output_port;
