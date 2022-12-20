@@ -15,6 +15,20 @@
 /*************/
 /* functions */
 /*************/
+static int init_gpio ()
+{
+	if (gpioInitialise() == PI_INIT_FAILED) {
+    	fprintf(stderr, "pigpio initialisation failed\n");
+    	return OFF;
+	}
+
+	/* Set GPIO modes */
+	gpioSetMode(LED_GPIO, PI_OUTPUT);
+	gpioSetMode(SWITCH_GPIO, PI_INPUT);
+	gpioSetPullUpDown(SWITCH_GPIO, PI_PUD_UP);	// Sets a pull-up
+	// benefits of pull-up is that way, no voltage are input in the pins; pins are only put to GND
+	return ON;
+}
 
 static void init_globals ( )
 {
@@ -194,6 +208,9 @@ int main ( int argc, char *argv[] )
 		fprintf ( stderr, "cannot activate client.\n" );
 		exit ( 1 );
 	}
+
+	// init GPIO to enable external "beat" switch
+	gpio_state = init_gpio ();
 
 	// init global variables
 	init_globals();

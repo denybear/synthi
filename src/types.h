@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <dirent.h>
 #include <time.h>
+#include <pigpio.h>
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -21,6 +22,9 @@
 #include <libconfig.h>
 #include <fluidsynth.h>
 
+/* default GPIO pins */
+#define LED_GPIO	21
+#define SWITCH_GPIO	20
 
 /* default soundfont file */
 #define DEFAULT_SF2 "./soundfonts/00_FluidR3_GM.sf2"

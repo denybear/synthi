@@ -6,5 +6,7 @@
 
 int process ( jack_nframes_t, void *);
 int midi_in_process (jack_midi_event_t *, jack_nframes_t);
+int gpio_process ();
+int beat_process ();
 int handle_tick(void *, int);
 

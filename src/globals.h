@@ -5,6 +5,10 @@
  */
 
 // global variables
+
+// define if gpio is running for external beat switch and LED
+extern int gpio_state; // OFF = gpio OFF: ON = GPIO ON 
+
 // define midi ports
 extern jack_port_t *midi_input_port;
 extern jack_port_t *midi_output_port;

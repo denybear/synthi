@@ -116,7 +116,6 @@ int midi_in_process (jack_midi_event_t *event, jack_nframes_t nframes) {
 
 	int i,j;
 	int k,l;
-	uint64_t tempo_us;						// for beat management
 
 
 	// check if play pad has been pressed
@@ -294,9 +293,37 @@ int midi_in_process (jack_midi_event_t *event, jack_nframes_t nframes) {
 
 	// check if BEAT pad has been pressed
 	if (same_event(event->buffer,filefunct[0].ctrl[BEAT])) {
+		beat_process ();
+	}
+}
 
-		// get current time
-		now = micros ();
+
+// process managing external switch and LED
+int gpio_process () {
+
+	// test if GPIO is enabled
+	if (gpio_state == ON) {
+		if (gpioRead (SWITCH_GPIO)) {
+			// anti_bounce mechanism
+			// LED mechanism
+			beat_process ();
+		};
+	}
+}
+
+
+// process callback called to process press on "beat" pad/switch 
+int beat_process () {
+
+	uint64_t tempo_us;						// for beat management
+
+	// get current time
+	now = micros ();
+
+	tempo_us = fluid_player_get_midi_tempo (player);	// get tempo per quarter note
+
+	// proceed only if we have a valid tempo; otherwise do nothing
+	if (tempo_us != FLUID_FAILED) {
 
 		// check if previous time is set; if not, set to a default value corresponding to current BPM
 		// fluid_player_get_midi_tempo () returns current tempo of player in us per quarter note (ie per beat)
@@ -307,25 +334,20 @@ int midi_in_process (jack_midi_event_t *event, jack_nframes_t nframes) {
 				initial_bpm = (fluid_player_get_bpm (player) == FLUID_FAILED) ? 0 : fluid_player_get_bpm (player);
 			}
 
-			tempo_us = fluid_player_get_midi_tempo (player);	// get tempo per quarter note
-			if (tempo_us != FLUID_FAILED) {
-				previous = now - tempo_us;						// set value of previous according to tempo
-			}
+			previous = now - tempo_us;						// set value of previous according to tempo
 		} 
 
-		// manage new tempo only if we have a valid tempo initially
-		if (tempo_us != FLUID_FAILED) {
-
-			// check that time between previous and now is not too long...
-			// in some case, we miss a beat keypress, we must accomodate for this
-			// to check this, we make sure that time difference is < than 1.75 x current tempo
-			// if it is >, then likely a keypress has been mised: do not change tempo then
-			if ((now-previous) > (uint64_t) floor ((double) tempo_us * 1.75f)) previous = 0;
-			else {
-				// set new tempo
-				fluid_player_set_tempo (player, FLUID_PLAYER_TEMPO_EXTERNAL_MIDI, (double)(now-previous));
-				previous = now;
-			}
+		// check that time between previous and now is not too long...
+		// in some case, we miss a beat keypress, we must accomodate for this
+		// to check this, we make sure that time difference is < than 1.75 x current tempo
+		// if it is >, then likely a keypress has been mised: do not change tempo then
+		if ((now-previous) > tempo_us + (tempo_us >> 1) + (tempo_us >>2)) {
+			previous = 0;
+		}
+		else {
+			// set new tempo
+			fluid_player_set_tempo (player, FLUID_PLAYER_TEMPO_EXTERNAL_MIDI, (double)(now-previous));
+			previous = now;
 		}
 	}
 }
