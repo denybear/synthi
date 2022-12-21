@@ -7,6 +7,7 @@ export JACK_NO_AUDIO_RESERVATION=1
 jackd --realtime --realtime-priority 70 --port-max 30 --silent -d alsa --device hw:io2 --nperiods 3 --rate 48000 --period 128 &
 sleep 5
 a2jmidid -ue &
+sudo pigpiod &
 sleep 5
 /home/pi/boocli/boocli.a /home/pi/boocli/boocli.cfg &
 sleep 5
