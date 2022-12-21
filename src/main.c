@@ -41,7 +41,7 @@ static int kill_gpio_do_not_use ()
 
 static int init_gpio ()
 {
-	gpio_deamon = pigpio_start(0, 0);
+	gpio_deamon = pigpio_start(0,0);		// connect to localhost on port 8888
 
 	if (gpio_deamon < 0) {
     	fprintf(stderr, "pigpio initialisation failed\n");
@@ -61,6 +61,7 @@ static int init_gpio ()
 
 static int kill_gpio ()
 {
+	gpio_state = OFF;
 	pigpio_stop (gpio_deamon);
 }
 
@@ -306,7 +307,8 @@ int main ( int argc, char *argv[] )
 		fprintf (stderr, "server: %s , client: %s\n", ports_to_connect[i], ports_to_connect[i+1]);
 		if ( jack_connect ( client, ports_to_connect [i], ports_to_connect [i+1]) ) {
 			fprintf ( stderr, "cannot connect ports (between client and server).\n" );
-			kill_gpio ();
+// removed the below 2 lines to so synthi is run in standalone without connection to boocli
+//			kill_gpio ();
 //			exit (1);
 		}
 		/* increment index of 2 position to move to next (server, client) port couple */

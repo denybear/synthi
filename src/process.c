@@ -317,7 +317,7 @@ int gpio_process () {
 		if (gpio_read (gpio_deamon, SWITCH_GPIO) == OFF) {
 			// anti_bounce mechanism: make sure the switch is not "bouncing", causing repeated ON-OFF in a short period
 			// no bounce if previous is 0
-			if ((previous == 0) || ((now-previous) > ANTIBOUNCE_US))
+			if ((previous == 0) || ((now-previous) >= ANTIBOUNCE_US))
 			{
 				previous_led = now;			// set time when led has been put on
 //				gpioWrite (LED_GPIO, ON);	// turn LED ON
@@ -384,7 +384,6 @@ int beat_process () {
 int handle_tick(void *data, int tick) {
 
 	fluid_player_t* player;
-//	int ppq;
 	int index_pulse;
 	int i;
 	float ppq_per_midi_clock;
@@ -393,9 +392,6 @@ int handle_tick(void *data, int tick) {
 
 	// define data as being a pointer to player
 	player = (fluid_player_t*) data;
-	// pulse per quarter note
-// This call does not exist in FLUIDSYTH yet; replaced with custom function
-//	ppq = fluid_player_get_division (player);
 	// number of pulse per midi_clock event
 	ppq_per_midi_clock = ppq / 24.0;
 	// index of pulse within quarter note

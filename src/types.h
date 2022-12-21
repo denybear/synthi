@@ -24,9 +24,9 @@
 #include <fluidsynth.h>
 
 /* default GPIO pins */
-#define LED_GPIO	21
-#define SWITCH_GPIO	20
-#define ANTIBOUNCE_US   200000      // 0.20 sec = 200000 usec : used for switch anti-bouncing check
+#define LED_GPIO	19
+#define SWITCH_GPIO	26
+#define ANTIBOUNCE_US   250000      // 0.25 sec = 250000 usec : used for switch anti-bouncing check : allows 240BPM max
 #define TIMEON_US       200000      // 0.20 sec : used as on/off time for leds 
 
 /* default soundfont file */
