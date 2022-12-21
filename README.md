@@ -11,6 +11,7 @@ synthi is a midi file player. It is designed to work side-by-side with boocli, a
 * Generates midi clock signal while playing midi file
 * Supports volume -/+ while playing midi file
 * Support BPM -/+ while playing midi file
+* Optional support of "beat" button via MIDI or GPIO; this button allows to adjust rhythm when playing with a live band, as rhythm can fluwtuate a bit
 * All this using a simple Raspberry 3B and above!
 
 The big benefit of synthi is simplification while using boocli.
