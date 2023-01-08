@@ -272,7 +272,7 @@ int main ( int argc, char *argv[] )
 
 	// load default soundfont
 	if (fluid_is_soundfont(DEFAULT_SF2)) {
-		fluid_synth_sfload(synth, DEFAULT_SF2, 1);
+		sf2_id = fluid_synth_sfload(synth, DEFAULT_SF2, 1);
 	}
 
 	// create new player, but don't load anything for now
