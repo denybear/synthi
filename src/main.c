@@ -111,8 +111,16 @@ static void init_globals ( )
 
 static void signal_handler ( int sig )
 {
-	jack_client_close ( client );
 	kill_gpio ();
+	// JACK client close
+	jack_client_close ( client );
+
+	// Fluidsynth cleanup
+	delete_fluid_player(player);
+	delete_fluid_audio_driver(adriver);
+	delete_fluid_synth(synth);
+	delete_fluid_settings(settings);
+
 	fprintf ( stderr, "signal received, exiting ...\n" );
 	exit ( 0 );
 }
@@ -128,6 +136,13 @@ void jack_shutdown ( void *arg )
 	free (midi_output_port);
 	free (clock_output_port);
 	kill_gpio ();
+
+	// Fluidsynth cleanup
+	delete_fluid_player(player);
+	delete_fluid_audio_driver(adriver);
+	delete_fluid_synth(synth);
+	delete_fluid_settings(settings);
+
 	exit ( 1 );
 }
 
@@ -144,12 +159,6 @@ int main ( int argc, char *argv[] )
 	jack_options_t options = JackNullOption;
 	jack_status_t status;
 
-	// Fluidsynth variables
-	fluid_settings_t* settings;
-	fluid_synth_t* synth;
-	// note that fluid_player_t* player; is declared as global variable as we need it in jack's process () thread
-	fluid_audio_driver_t* adriver;
-	
 	// string containing : directory + filename
 	char name [1000];
 
@@ -223,6 +232,8 @@ int main ( int argc, char *argv[] )
 	if (midi_input_port == NULL ) {
 		fprintf ( stderr, "no more JACK MIDI ports available.\n" );
 		kill_gpio ();
+		// JACK client close
+		jack_client_close ( client );
 		exit ( 1 );
 	}
 
@@ -239,6 +250,9 @@ int main ( int argc, char *argv[] )
 	if (clock_output_port == NULL ) {
 		fprintf ( stderr, "no more JACK CLOCK ports available.\n" );
 		kill_gpio ();
+		// JACK client close
+		jack_client_close ( client );
+
 		exit ( 1 );
 	}
 
@@ -250,6 +264,8 @@ int main ( int argc, char *argv[] )
 	{
 		fprintf ( stderr, "cannot activate client.\n" );
 		kill_gpio ();
+		// JACK client close
+		jack_client_close ( client );
 		exit ( 1 );
 	}
 
@@ -271,8 +287,10 @@ int main ( int argc, char *argv[] )
 	adriver = new_fluid_audio_driver(settings, synth);
 
 	// load default soundfont
+	// default soundfont will always be in memory and will never be unloaded
+	// to avoid sound issues
 	if (fluid_is_soundfont(DEFAULT_SF2)) {
-		sf2_id = fluid_synth_sfload(synth, DEFAULT_SF2, 1);
+		fluid_synth_sfload(synth, DEFAULT_SF2, TRUE);
 	}
 
 	// create new player, but don't load anything for now
@@ -288,6 +306,15 @@ int main ( int argc, char *argv[] )
 	if (read_config (config_name)==EXIT_FAILURE) {
 		fprintf ( stderr, "error in reading config file.\n" );
 		kill_gpio ();
+		// JACK client close
+		jack_client_close ( client );
+
+		// Fluidsynth cleanup
+		delete_fluid_player(player);
+		delete_fluid_audio_driver(adriver);
+		delete_fluid_synth(synth);
+		delete_fluid_settings(settings);
+
 		exit ( 1 );
 	}
 
@@ -416,7 +443,9 @@ if (name_to_byte (&filename [0]) == 01) {
 					if (fluid_is_soundfont(name)) {
 						// unload previously loaded soundfont
 						// this is to prevent memory issues (lack of memory)
-						fluid_synth_sfunload (synth, sf2_id, TRUE);
+						// however make sure we don't unload the only soundfont in memory
+						// in theory we should have at least 1 soundfont all the time in memory (default SF2)
+						if (fluid_synth_sfcount (synth) > 1) fluid_synth_sfunload (synth, sf2_id, TRUE);
 						// load new sf2 file
 						sf2_id = fluid_synth_sfload(synth, name, TRUE);
 					}
@@ -453,8 +482,8 @@ if (name_to_byte (&filename [0]) == 01) {
 	jack_client_close ( client );
 
 	// Fluidsynth cleanup
-	delete_fluid_audio_driver(adriver);
 	delete_fluid_player(player);
+	delete_fluid_audio_driver(adriver);
 	delete_fluid_synth(synth);
 	delete_fluid_settings(settings);
 

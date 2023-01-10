@@ -28,6 +28,9 @@ uint32_t nb_frames_per_packet, sample_rate;
 
 // FLUIDSYNTH player
 fluid_player_t* player;
+fluid_settings_t* settings;
+fluid_synth_t* synth;
+fluid_audio_driver_t* adriver;
 
 // determine if midi clock shall be sent or not
 int send_clock = NO_CLOCK;

@@ -25,6 +25,9 @@ extern uint32_t nb_frames_per_packet, sample_rate;
 
 // FLUIDSYNTH player
 extern fluid_player_t* player;
+extern fluid_settings_t* settings;
+extern fluid_synth_t* synth;
+extern fluid_audio_driver_t* adriver;
 
 // determine if midi clock shall be sent or not
 extern int send_clock;
