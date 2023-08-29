@@ -281,7 +281,6 @@ int main ( int argc, char *argv[] )
 	// jack as audio driver
 	// sample rate as the one defined in jack
 	fluid_settings_setstr(settings, "audio.driver", "jack");
-//	fluid_settings_setstr(settings, "synth.sample-rate", sample_rate);
 
 	// start the synthesizer thread
 	adriver = new_fluid_audio_driver(settings, synth);
@@ -451,7 +450,7 @@ if (name_to_byte (&filename [0]) == 01) {
 					}
 				}
 			}
-			
+
 			// load is done; set to FALSE
 			is_load = FALSE;
 			// load led OFF

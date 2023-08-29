@@ -387,8 +387,7 @@ int handle_tick(void *data, int tick) {
 	int index_pulse;
 	int i;
 	float ppq_per_midi_clock;
-	int end_tick;
-
+	int end_tick, et1, et2, et3;
 
 	// define data as being a pointer to player
 	player = (fluid_player_t*) data;
@@ -398,20 +397,24 @@ int handle_tick(void *data, int tick) {
 	index_pulse = tick % ppq;
 
 	// make sure the song ends on a exact beat... not in the middle of a beat
-	// division shall be integer division so remaining is lost and we have an exact multiple of ppq 
+	// division shall be integer division so remaining is lost and we have an exact multiple of ppq
+	// why "+1" ??? suppose PPQ= 120; in case total tick of song is 119 (stop on exact beat), then end_tick will be 120
+	// and condition will never be met (clean loop /stop)
+	// in case total tick of song is 120 (not so clean stop), then we will skip the last tick (#120)
+	// same if song length is 125: we will skip the last 5 ticks.
 	end_tick = (fluid_player_get_total_ticks (player) + 1) / ppq;
 	end_tick *= ppq; 	// here, end_tick shall contain the tick value of real song end
 	// we should not send clock signals if tick is greater or equal to end_tick... so we stop at end of last beat, and could loop properly
 	if (tick >= end_tick) {
-		// in any case, set previous pulse index to current
-		previous_index_pulse = index_pulse;
+		// in case song does not stop at end of beat : we have passed the last beat but the song is not over yet
+		// in any case, we don't do anything : just leave and wait for end of the song, without sending MIDI clock signals anymore
 		return FLUID_OK;
 	}
 	
 /* for debug purpose only
 char s[80];
 char s2 [50];
-sprintf (s, "tick:%d - ppq:%d - index_pulse:%d", tick, ppq, index_pulse);
+sprintf (s, "tick:%d - ppq:%d - index_pulse:%d\n", tick, ppq, index_pulse);
 */
 
 	// Check if PLAY has just been pressed
